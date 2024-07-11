@@ -7,7 +7,7 @@ Pod::Spec.new do |spec|
   spec.description  = "Library for displaying ads in Swift."
   spec.homepage     = "https://cleveradvertising.com"
   spec.license      = "MIT"
-  spec.author       = { "CursedMun" => "frosty.hyperx@gmail.com" }
+  spec.author       = { "CleverAdvertising" => "development@cleveradvertising.com" }
   spec.source       = { :git => "https://github.com/CleverAdvertising/swift-ads-package.git", :tag => "#{spec.version}" }
   spec.ios.deployment_target = '13.0'
   spec.osx.deployment_target = '10.15'
