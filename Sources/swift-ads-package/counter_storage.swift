@@ -48,17 +48,14 @@ class CounterStorage {
     }
 
     func getCounterData(scriptId: String) -> AnyPublisher<Bool?, Never> {
-           print("Got here")
            return Future { promise in
                let configuredExpirationPublisher = self.getConfiguredExpiration(scriptId: scriptId)
                configuredExpirationPublisher
                    .sink(receiveCompletion: { _ in }) { expiration in
-                       print("Got her1e")
                        guard let expiration = expiration else {
                            promise(.success(false))
                            return
                        }
-                       print("Got her2e")
                        guard let value = self.userDefaults.string(forKey: "clever-counter-\(scriptId)"),
                              let valueNumber = Double(value) else {
                            promise(.success(false))

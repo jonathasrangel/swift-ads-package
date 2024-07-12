@@ -99,7 +99,6 @@ extension SwiftAdsPackage: WKNavigationDelegate, WKUIDelegate {
             }
         
             if shouldBeOpenedInBrowser(url: navigationAction.request.url?.absoluteString ?? "") {
-            
             // Intent to open link in the default browser
             if let url = navigationAction.request.url {
                 #if os(iOS)
@@ -117,34 +116,28 @@ extension SwiftAdsPackage: WKNavigationDelegate, WKUIDelegate {
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         self.finishedLoading = true;
         let scriptUrl = "https://script.cleverwebserver.com/v1/html/\(scriptId)?app=\(Bundle.main.bundleIdentifier ?? "")&sdk=swift"
-        
-        getCookies(url: scriptUrl) { cookieString in
-            guard let cookieString = cookieString else { return }
-            
-            let cookies = cookieString.split(separator: ";")
+        self.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
             for cookie in cookies {
-                let cookieParts = cookie.split(separator: "=")
-                if cookieParts.count == 2 {
-                    let key = String(cookieParts[0]).trimmingCharacters(in: .whitespaces)
-                    let value = String(cookieParts[1]).trimmingCharacters(in: .whitespaces)
-                    
-                    let lastTrackerCookieKey = "clever-last-tracker-\(self.scriptId)"
-                    if key == lastTrackerCookieKey {
-                        let _ = self.counterStorage.saveToStorage(key: lastTrackerCookieKey, value: value)
-                        return
+                let key = cookie.name
+                let value = cookie.value
+                
+                let lastTrackerCookieKey = "clever-last-tracker-\(self.scriptId)"
+                if key == lastTrackerCookieKey {
+                    let _ = self.counterStorage.saveToStorage(key: lastTrackerCookieKey, value: value)
+                    return
+                }
+                
+                let counterCookieKey = "clever-counter-\(self.scriptId)"
+                if key == counterCookieKey {
+                    DispatchQueue.main.async {
+                        let _ = self.counterStorage.storeCounterData(scriptId: self.scriptId)
+                        let __ = self.counterStorage.deleteFromStorage(key: lastTrackerCookieKey)
                     }
-                    
-                    let counterCookieKey = "clever-counter-\(self.scriptId)"
-                    if key == counterCookieKey {
-                        DispatchQueue.main.async {
-                            let _ = self.counterStorage.storeCounterData(scriptId: self.scriptId)
-                            let __ = self.counterStorage.deleteFromStorage(key: lastTrackerCookieKey)
-                        }
-                        return
-                    }
+                    return
                 }
             }
         }
+
     }
     
     // WKUIDelegate methods if needed
@@ -154,27 +147,7 @@ extension SwiftAdsPackage {
     // Helper methods
     
     private func shouldBeOpenedInBrowser(url: String) -> Bool {
-        return !url.starts(with: "https://script.cleverwebserver.com") && !url.starts(with: "https://lp.cleverwebserver.com") && !url.starts(with: "https://sender.cleverwebserver.com")
+        return !url.starts(with: "https://script.cleverwebserver.com")
     }
     
-    private func getCookies(url: String, completion: @escaping (String?) -> Void) {
-        guard let cookieURL = URL(string: url) else {
-            completion(nil)
-            return
-        }
-        
-        URLSession.shared.dataTask(with: cookieURL) { data, response, error in
-            guard let data = data, error == nil else {
-                completion(nil)
-                return
-            }
-            
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                let cookieString = String(data: data, encoding: .utf8)
-                completion(cookieString)
-            } else {
-                completion(nil)
-            }
-        }.resume()
-    }
 }
