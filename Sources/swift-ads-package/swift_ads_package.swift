@@ -94,6 +94,7 @@ extension SwiftAdsPackage: WKNavigationDelegate, WKUIDelegate {
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         // Check if the URL is intended to be opened in an external browser
             if (!finishedLoading) {
+                decisionHandler(.allow)
                 return;
             }
         
