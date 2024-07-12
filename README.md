@@ -4,31 +4,17 @@
 
 ### GitHub
 
-1. Clone the repository to your local machine:
+1. Go to Project Settings -> General -> Frameworks, Libraries, and Embedded Content:
+
+2. Click on the + button and select Add Other... -> Add Package Dependency...:
+
+3. On the search bar, type the URL of this repository:
 
     ```shell
-    git clone https://github.com/your-username/swift-ads-package.git
+    https://github.com/CleverAdvertising/swift-ads-package.git
     ```
+    
 
-2. Navigate to the project directory:
-
-    ```shell
-    cd swift-ads-package
-    ```
-
-3. Use Swift Package Manager to build and generate an Xcode project:
-
-    ```shell
-    swift package generate-xcodeproj
-    ```
-
-4. Open the generated Xcode project:
-
-    ```shell
-    open SwiftAdsPackage.xcodeproj
-    ```
-
-5. Build the project in Xcode (⌘+B) and verify that there are no build errors.
 
 ### CocoaPods
 
@@ -43,15 +29,40 @@
     ```shell
     pod install
     ```
-
-3. Open the generated `.xcworkspace` file.
-
-4. Import the Swift Ads Package module in your Swift files:
-
-    ```swift
-    import SwiftAdsPackage
-    ```
-
 ## Usage
 
-// Provide instructions on how to use your Swift Ads Package here.
+1. Create a file named AdsWebView.swift
+
+2. Insert the following code
+
+```swift
+import Foundation
+import SwiftUI
+import WebKit
+import swift_ads_package
+import Combine
+import Foundation
+import UIKit
+import WebKit
+import _Concurrency
+import _StringProcessing
+import _SwiftConcurrencyShims
+struct AdsWebView: UIViewRepresentable {
+    let scriptId: Int
+
+    func makeUIView(context: Context) -> WKWebView {
+        let webView = SwiftAdsPackage(frame: .zero, configuration: WKWebViewConfiguration(), scriptId: scriptId)
+        
+        return webView
+    }
+    func updateUIView(_ uiView: WKWebView, context: Context) {
+        // Handle updates if necessary
+    }
+}
+```
+
+3. Add the following code anywhere in your project to display the ad
+
+```swift
+    AdsWebView(scriptId: script id here).frame(width: 320, height: 50)
+```
