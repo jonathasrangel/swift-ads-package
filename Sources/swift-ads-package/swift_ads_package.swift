@@ -37,7 +37,6 @@ public class SwiftAdsPackage: WKWebView {
         counterStorage.getCounterData(scriptId: "\(scriptId)")
                     .receive(on: DispatchQueue.main)
                     .sink(receiveCompletion: { _ in }) { [weak self] result in
-                        print(result ?? "nothing")
                         if result != false {
                             print("Counter data existed, leaving")
                             self?.destroy()
@@ -61,15 +60,25 @@ public class SwiftAdsPackage: WKWebView {
         
         self.configuration.preferences.javaScriptEnabled = true
         self.configuration.preferences.javaScriptCanOpenWindowsAutomatically = true
-        
-        // Additional settings as needed
-        // Example: Enable DOM storage
+        let lastTrackerCookieKey = "clever-last-tracker-\(self.scriptId)"
+        let lastTracker = self.counterStorage.getFromStorage(key: lastTrackerCookieKey);
+        if let lastTracker = lastTracker {
+            let cookieProperties: [HTTPCookiePropertyKey: Any] = [
+                .path: "/",
+                .name: lastTrackerCookieKey,
+                .value: lastTracker,
+                .secure: "TRUE",
+                .expires: NSDate(timeIntervalSinceNow: 2.628e+6)
+            ]
+
+            if let cookie = HTTPCookie(properties: cookieProperties) {
+                // Add the cookie to the web view
+                let websiteDataStore = WKWebsiteDataStore.default()
+                websiteDataStore.httpCookieStore.setCookie(cookie, completionHandler: nil)
+            }
+        }
         //self.configuration.preferences.setValue(true, forKey: "domStorageEnabled")
         
-        // Set up navigation handling
-        self.configuration.websiteDataStore.httpCookieStore.getAllCookies { cookies in
-            // Handle cookies if needed
-        }
     }
     private func destroy() {
             self.navigationDelegate = nil
@@ -85,9 +94,7 @@ extension SwiftAdsPackage: WKNavigationDelegate, WKUIDelegate {
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         // Check if the URL is intended to be opened in an external browser
         
-        
-        print(navigationAction.request.url?.absoluteString ?? "empty")
-        if shouldBeOpenedInBrowser(url: navigationAction.request.url?.absoluteString ?? "") {
+            if shouldBeOpenedInBrowser(url: navigationAction.request.url?.absoluteString ?? "") {
             
             // Intent to open link in the default browser
             if let url = navigationAction.request.url {
@@ -119,15 +126,15 @@ extension SwiftAdsPackage: WKNavigationDelegate, WKUIDelegate {
                     
                     let lastTrackerCookieKey = "clever-last-tracker-\(self.scriptId)"
                     if key == lastTrackerCookieKey {
-                        self.counterStorage.saveToStorage(key: lastTrackerCookieKey, value: value)
+                        let _ = self.counterStorage.saveToStorage(key: lastTrackerCookieKey, value: value)
                         return
                     }
                     
                     let counterCookieKey = "clever-counter-\(self.scriptId)"
                     if key == counterCookieKey {
                         DispatchQueue.main.async {
-                            self.counterStorage.storeCounterData(scriptId: self.scriptId)
-                            self.counterStorage.deleteFromStorage(key: lastTrackerCookieKey)
+                            let _ = self.counterStorage.storeCounterData(scriptId: self.scriptId)
+                            let __ = self.counterStorage.deleteFromStorage(key: lastTrackerCookieKey)
                         }
                         return
                     }
