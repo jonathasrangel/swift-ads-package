@@ -41,12 +41,6 @@ import SwiftUI
 import WebKit
 import swift_ads_package
 import Combine
-import Foundation
-import UIKit
-import WebKit
-import _Concurrency
-import _StringProcessing
-import _SwiftConcurrencyShims
 struct AdsWebView: UIViewRepresentable {
     let scriptId: Int
 
