@@ -90,6 +90,16 @@ public class SwiftAdsPackage: WKWebView {
 }
 @available(iOS 13.0, *)
 extension SwiftAdsPackage: WKNavigationDelegate, WKUIDelegate {
+    public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
+        if navigationAction.targetFrame == nil {
+            #if os(iOS)
+            UIApplication.shared.open(navigationAction.request.url!, options: [:])
+            #elseif os(macOS)
+            NSWorkspace.shared.open(navigationAction.request.url!)
+            #endif
+        }
+        return nil
+    }
     // WKNavigationDelegate methods
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         // Check if the URL is intended to be opened in an external browser
