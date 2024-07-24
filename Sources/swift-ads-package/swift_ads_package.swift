@@ -14,7 +14,7 @@ public class SwiftAdsPackage: WKWebView {
     private let counterStorage = CounterStorage()
 
     // New initializer with the custom integer parameter
-    public init(frame: CGRect, configuration: WKWebViewConfiguration, scriptId: Int) {
+    @objc public init(frame: CGRect, configuration: WKWebViewConfiguration, scriptId: Int) {
         self.scriptId = scriptId
         super.init(frame: frame, configuration: configuration)
         setup()
