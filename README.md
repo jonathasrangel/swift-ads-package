@@ -21,7 +21,7 @@
 1. Add the following line to your `Podfile`:
 
     ```ruby
-    pod 'SwiftAdsPackage', '~> 1.0'
+    pod 'SwiftAdsPackage', '~> 1.0.7'
     ```
 
 2. Run the following command to install the Swift Ads Package:
